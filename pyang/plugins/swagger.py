@@ -392,9 +392,9 @@ def gen_model(children, tree_structure, config=True):
                     parent_model = to_upper_camelcase(child.parent.arg)
                     if parent_model not in PARENT_MODELS.keys():
                         PARENT_MODELS[parent_model] = {'models': [], 'discriminator': to_lower_camelcase(child.arg)}
-                elif attribute.keyword == ("config-bridge", "cli-example"):
+                elif isinstance(attribute.keyword, tuple) and attribute.keyword[1] == 'cli-example':
                     node['example'] = attribute.arg
-                elif attribute.keyword == 'config' and attribute.arg == 'false':
+                elif attribute.keyword == 'config' and attribute.arg == 'false' or isinstance(attribute.keyword, tuple) and attribute.keyword[1] == 'init-only-config':
                     config = False
 
                 # Process the reference to another model.
@@ -505,7 +505,7 @@ def gen_api_node(node, path, apis, definitions, config=True):
     keyList = []
     for sub in node.substmts:
         # If config is False the API entry is read-only.
-        if sub.keyword == 'config' and sub.arg == 'false':
+        if sub.keyword == 'config' and sub.arg == 'false' or isinstance(sub.keyword, tuple) and sub.keyword[1] == 'init-only-config':
             config = False
         elif sub.keyword == 'key':
             keyList = str(sub.arg).split()
